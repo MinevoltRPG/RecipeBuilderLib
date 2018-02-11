@@ -40,9 +40,9 @@
             <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
         </repository>       
         <repository>
-			<id>drkmatr1984</id>
-			<url>http://minevolt.net/repo/</url>
-		</repository>
+            <id>drkmatr1984</id>
+            <url>http://minevolt.net/repo/</url>
+        </repository>
     </repositories>
 
 </project>
