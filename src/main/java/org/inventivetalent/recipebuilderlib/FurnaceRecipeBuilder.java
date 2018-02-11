@@ -5,24 +5,23 @@ import org.bukkit.Material;
 import org.bukkit.inventory.FurnaceRecipe;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
+import org.bukkit.inventory.Recipe;
 
-import me.drkmatr1984.reflectionutils.ReflectionUtils;
-
-public class FurnaceRecipeBuilder extends AbstractFurnaceRecipeBuilder
+public class FurnaceRecipeBuilder extends RecipeBuilder
 {
     static Field RECIPE_ITEM;
-    
-    public FurnaceRecipeBuilder() {
-    }
     
     public FurnaceRecipeBuilder(final ItemStack result) {
         super(result);
     }
     
-    @Override
+    public FurnaceRecipeBuilder() {
+	}
+
+	@Override
     protected void initRecipe(final ItemStack result) {
         if (this.recipe == null) {
-            this.recipe = (FurnaceRecipe)new FurnaceRecipe(result, Material.AIR);
+            this.recipe = (Recipe)(new FurnaceRecipe(result, Material.AIR));
         }
     }
     
@@ -50,7 +49,7 @@ public class FurnaceRecipeBuilder extends AbstractFurnaceRecipeBuilder
     public FurnaceRecipeBuilder withInput(final ItemStack ingredient) {
         this.validateInit();
         try {
-        	ReflectionUtils.setField(FurnaceRecipeBuilder.RECIPE_ITEM, "ingredient", ingredient);
+        	setField(FurnaceRecipeBuilder.RECIPE_ITEM, "ingredient", ingredient);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -63,8 +62,8 @@ public class FurnaceRecipeBuilder extends AbstractFurnaceRecipeBuilder
         return this;
     } 
     
-    public FurnaceRecipe build() {
-        return (FurnaceRecipe)super.build();
+    public Recipe build() {
+        return (Recipe)super.build();
     }
     
     static {
@@ -75,5 +74,40 @@ public class FurnaceRecipeBuilder extends AbstractFurnaceRecipeBuilder
             e.printStackTrace();
         }
     }
-
+    
+    /**
+     * Sets a field value on a given object
+     *
+     * @param targetObject the object to set the field value on
+     * @param fieldName    exact name of the field
+     * @param fieldValue   value to set on the field
+     * @return true if the value was successfully set, false otherwise
+     */
+     public static boolean setField(Object targetObject, String fieldName, Object fieldValue) {
+        Field field;
+        try {
+            field = targetObject.getClass().getDeclaredField(fieldName);
+        } catch (NoSuchFieldException e) {
+            field = null;
+        }
+        @SuppressWarnings("rawtypes")
+		  Class superClass = targetObject.getClass().getSuperclass();
+        while (field == null && superClass != null) {
+            try {
+                field = superClass.getDeclaredField(fieldName);
+            } catch (NoSuchFieldException e) {
+                superClass = superClass.getSuperclass();
+            }
+        }
+        if (field == null) {
+            return false;
+        }
+        field.setAccessible(true);
+        try {
+            field.set(targetObject, fieldValue);
+            return true;
+        } catch (IllegalAccessException e) {
+            return false;
+        }
+     }	
 }
