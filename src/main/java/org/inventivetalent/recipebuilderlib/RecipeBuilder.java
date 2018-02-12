@@ -34,6 +34,10 @@ public abstract class RecipeBuilder
     
     public void register() {
         final Recipe recipe = this.build();
-        Bukkit.addRecipe(recipe);
+        if(recipe instanceof FurnaceRecipe) {
+        	   Bukkit.addRecipe((FurnaceRecipe)recipe);
+        }else {
+        	   Bukkit.addRecipe(recipe);
+        }       
     }
 }
