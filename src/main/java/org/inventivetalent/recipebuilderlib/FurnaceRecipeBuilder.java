@@ -5,7 +5,6 @@ import org.bukkit.Material;
 import org.bukkit.inventory.FurnaceRecipe;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
-import org.bukkit.inventory.Recipe;
 
 public class FurnaceRecipeBuilder extends RecipeBuilder
 {
@@ -21,7 +20,7 @@ public class FurnaceRecipeBuilder extends RecipeBuilder
 	@Override
     protected void initRecipe(final ItemStack result) {
         if (this.recipe == null) {
-            this.recipe = (Recipe)(new FurnaceRecipe(result, Material.AIR));
+            this.recipe = (FurnaceRecipe)(new FurnaceRecipe(result, Material.AIR));
         }
     }
     
@@ -49,7 +48,7 @@ public class FurnaceRecipeBuilder extends RecipeBuilder
     public FurnaceRecipeBuilder withInput(final ItemStack ingredient) {
         this.validateInit();
         try {
-        	setField(FurnaceRecipeBuilder.RECIPE_ITEM, "ingredient", ingredient);
+        	FurnaceRecipeBuilder.RECIPE_ITEM.set(this.getRecipe(), ingredient);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -62,52 +61,17 @@ public class FurnaceRecipeBuilder extends RecipeBuilder
         return this;
     } 
     
-    public Recipe build() {
-        return (Recipe)super.build();
+    public FurnaceRecipe build() {
+        return (FurnaceRecipe)super.build();
     }
     
     static {
         try {
-            (FurnaceRecipeBuilder.RECIPE_ITEM = FurnaceRecipe.class.getDeclaredField("ingredient")).setAccessible(true);
+            FurnaceRecipeBuilder.RECIPE_ITEM = FurnaceRecipe.class.getDeclaredField("ingredient");
+            FurnaceRecipeBuilder.RECIPE_ITEM.setAccessible(true);
         }
         catch (Exception e) {
             e.printStackTrace();
         }
     }
-    
-    /**
-     * Sets a field value on a given object
-     *
-     * @param targetObject the object to set the field value on
-     * @param fieldName    exact name of the field
-     * @param fieldValue   value to set on the field
-     * @return true if the value was successfully set, false otherwise
-     */
-     public static boolean setField(Object targetObject, String fieldName, Object fieldValue) {
-        Field field;
-        try {
-            field = targetObject.getClass().getDeclaredField(fieldName);
-        } catch (NoSuchFieldException e) {
-            field = null;
-        }
-        @SuppressWarnings("rawtypes")
-		  Class superClass = targetObject.getClass().getSuperclass();
-        while (field == null && superClass != null) {
-            try {
-                field = superClass.getDeclaredField(fieldName);
-            } catch (NoSuchFieldException e) {
-                superClass = superClass.getSuperclass();
-            }
-        }
-        if (field == null) {
-            return false;
-        }
-        field.setAccessible(true);
-        try {
-            field.set(targetObject, fieldValue);
-            return true;
-        } catch (IllegalAccessException e) {
-            return false;
-        }
-     }	
 }
